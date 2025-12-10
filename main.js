@@ -1,27 +1,167 @@
-    /* VERİ SETİ (PDF Kaynaklı) */
-    const questions = [
-        { val: "13", hint: "Önce birler, sonra onlar (Ters yok)", parts: ["drei", "zehn"], distractors: ["und", "dreißig"] },
-        { val: "17", hint: "Dikkat: 'en' düşer! [cite: 65]", parts: ["sieb", "zehn"], distractors: ["sieben", "und"] },
-        { val: "21", hint: "Dikkat: 's' düşer! [cite: 73]", parts: ["ein", "und", "zwanzig"], distractors: ["eins", "zwei"] },
-        { val: "35", hint: "Ters Mantık: 5 ve 30", parts: ["fünf", "und", "dreißig"], distractors: ["drei", "fünfzig", "zehn"] },
-        { val: "1981", hint: "Yıl Okunuşu (19.. 81) [cite: 124]", parts: ["neunzehn", "hundert", "ein", "und", "achtzig"], distractors: ["tausend", "eins"] },
-        { val: "2023", hint: "Yıl (2000+) Normal okunur [cite: 134]", parts: ["zwei", "tausend", "drei", "und", "zwanzig"], distractors: ["hundert", "null"] },
-        { val: "99", hint: "9 ve 90", parts: ["neun", "und", "neunzig"], distractors: ["neunzehn"] },
-        { val: "70", hint: "Dikkat: 'en' düşer [cite: 83]", parts: ["siebzig"], distractors: ["siebenzig", "sieben"] },
-        { val: "16", hint: "Dikkat: 's' düşer [cite: 61]", parts: ["sech", "zehn"], distractors: ["sechs", "und"] },
-        { val: "105", hint: "Yüz beş (und yok)", parts: ["ein", "hundert", "fünf"], distractors: ["und", "fünfzig"] }
-    ];
+    // --- SES MOTORU (GELİŞMİŞ & HATASIZ) ---
+    let selectedVoice = null;
+    let synth = window.speechSynthesis;
 
+    function loadVoices() {
+        if (!synth) return;
+        
+        const voices = synth.getVoices();
+        if (voices.length === 0) return;
+
+        // Mobilde ve Masaüstünde en iyi Almanca sesini bul
+        let bestVoice = voices.find(v => v.name.includes("Google Deutsch") || v.name.includes("Google German"));
+        if (!bestVoice) bestVoice = voices.find(v => v.lang === "de-DE" && v.name.includes("Natural")); // Edge
+        if (!bestVoice) bestVoice = voices.find(v => v.lang.startsWith("de")); // Herhangi bir Almanca
+
+        if (bestVoice) {
+            selectedVoice = bestVoice;
+            document.getElementById('voice-status').innerText = `Ses: ${bestVoice.name.replace(/Microsoft |Google /g, '').substring(0, 20)}`;
+        } else {
+            document.getElementById('voice-status').innerText = "Cihazınızda Almanca ses paketi bulunamadı.";
+        }
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    // Mobil tarayıcılar bazen geç yükler, 500ms sonra tekrar dene
+    setTimeout(loadVoices, 500);
+
+    // --- OYUN AYARLARI ---
+    const UNITS = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"];
+    const TENS = ["", "zehn", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"];
+    
+    let currentSpeed = 0.9;
+    let lastCorrectAnswer = ""; 
+
+    function setSpeed(val) {
+        currentSpeed = parseFloat(val);
+        if(lastCorrectAnswer) readOutLoud(lastCorrectAnswer);
+    }
+
+    // Mobil Algılama
+    function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
+    // Talimatları cihaza göre değiştir
+    if(isMobile()) {
+        document.getElementById('instruction-txt').innerText = "Kelimelere dokunarak yukarı taşıyın:";
+        document.getElementById('placeholder-msg').innerText = "Dokunarak ekle...";
+    }
+
+    function rdm(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateRandomQuestions(count) {
+        let newQuestions = [];
+        for (let i = 0; i < count; i++) {
+            let type = Math.random();
+            let num, data;
+
+            if (type < 0.2) num = rdm(0, 12);
+            else if (type < 0.4) {
+                if (Math.random() > 0.5) num = rdm(13, 19);
+                else num = rdm(2, 9) * 10;
+            } else if (type < 0.8) {
+                num = rdm(21, 99);
+                if(num % 10 === 0) num += 1; 
+            } else {
+                num = rdm(101, 999);
+            }
+
+            if(newQuestions.some(q => q.val == num)) { i--; continue; }
+            data = decomposeNumber(num);
+            newQuestions.push(data);
+        }
+        return newQuestions;
+    }
+
+    function decomposeNumber(n) {
+        let parts = [];
+        let distractors = [];
+        let hint = "";
+
+        if (n <= 12) {
+            let word = "";
+            if(n===11) word="elf";
+            else if(n===12) word="zwölf";
+            else if(n===10) word="zehn";
+            else word = UNITS[n];
+            parts.push(word);
+            distractors.push(n === 1 ? "ein" : "eins"); 
+            if(n>5) distractors.push("zehn");
+            hint = "Temel sayı.";
+        }
+        else if (n < 20) {
+            let unit = n % 10;
+            if (n === 16) {
+                parts = ["sech", "zehn"]; distractors = ["sechs", "und"]; hint = "Dikkat: 's' düşer!";
+            } else if (n === 17) {
+                parts = ["sieb", "zehn"]; distractors = ["sieben", "und"]; hint = "Dikkat: 'en' düşer!";
+            } else {
+                parts = [UNITS[unit], "zehn"]; distractors = ["und", TENS[unit]]; hint = "Önce birlik, sonra onluk.";
+            }
+        }
+        else if (n < 100) {
+            let unit = n % 10;
+            let ten = Math.floor(n / 10);
+            if (unit === 0) {
+                parts = [TENS[ten]]; distractors = [UNITS[ten], "und"]; hint = "Tam onluk.";
+            } else {
+                let unitStr = UNITS[unit];
+                if(unit === 1) unitStr = "ein"; 
+                parts = [unitStr, "und", TENS[ten]];
+                distractors.push(unit === 1 ? "eins" : "ein");
+                distractors.push(UNITS[ten]);
+                hint = "Ters okuma: Birlik + und + Onluk";
+            }
+        }
+        else {
+            let hundreds = Math.floor(n / 100);
+            let remainder = n % 100;
+            let hStr = (hundreds === 1) ? "ein" : UNITS[hundreds];
+            parts.push(hStr); parts.push("hundert");
+            distractors.push(hundreds === 1 ? "eins" : "ein"); distractors.push("und");
+
+            if (remainder > 0) {
+                let subData = decomposeNumber(remainder);
+                subData.parts.forEach(p => parts.push(p));
+                subData.distractors.forEach(d => distractors.push(d));
+            }
+            hint = "Yüzler basamağı önce gelir.";
+        }
+
+        distractors = [...new Set(distractors)].filter(d => !parts.includes(d)).slice(0, 3);
+        
+        return { val: n, parts: parts, distractors: distractors, hint: hint };
+    }
+
+    let questions = [];
     let currentQ = 0;
     let currentData = null;
     let draggedItem = null;
-    let dragSource = null; // 'pool' or 'zone'
+
+    function readOutLoud(text) {
+        if (synth) {
+            synth.cancel(); 
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (selectedVoice) utterance.voice = selectedVoice;
+            else utterance.lang = 'de-DE';
+            utterance.rate = currentSpeed; 
+            synth.speak(utterance);
+        }
+    }
 
     function startQuiz() {
+        questions = generateRandomQuestions(10);
         document.getElementById('end-screen').style.display = 'none';
         document.getElementById('quiz-screen').style.display = 'block';
         currentQ = 0;
+        lastCorrectAnswer = "";
         loadQuestion();
+        loadVoices();
     }
 
     function loadQuestion() {
@@ -31,9 +171,8 @@
             return;
         }
 
-        // Rastgele soru seçmiyoruz, sırayla gidiyoruz (veya karıştırılabilir)
-        // Burada basitlik için sırayla.
         currentData = questions[currentQ];
+        lastCorrectAnswer = "";
 
         document.getElementById('q-counter').innerText = `Soru ${currentQ + 1} / ${questions.length}`;
         document.getElementById('target-num').innerText = currentData.val;
@@ -45,11 +184,9 @@
         document.getElementById('action-btn').onclick = checkAnswer;
         document.getElementById('action-btn').style.backgroundColor = "var(--success)";
 
-        // Drop Zone Temizle
         const zone = document.getElementById('drop-zone');
-        zone.innerHTML = '<span style="color:#bdc3c7; pointer-events:none;" id="placeholder-msg">Parçaları buraya bırakın...</span>';
+        zone.innerHTML = '<span style="color:#bdc3c7; pointer-events:none; font-size:0.9em;" id="placeholder-msg">' + (isMobile() ? 'Dokunarak ekle...' : 'Buraya bırakın...') + '</span>';
 
-        // Havuz Oluştur
         const pool = document.getElementById('source-pool');
         pool.innerHTML = '';
         
@@ -67,23 +204,21 @@
     function createChip(text, id) {
         const div = document.createElement('div');
         div.classList.add('word-chip');
-        div.setAttribute('draggable', 'true');
+        div.setAttribute('draggable', 'true'); // Masaüstü için
         div.innerText = text;
         div.id = id;
         div.dataset.val = text;
         
-        // Desktop Drag Events
+        // Masaüstü Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragend', handleDragEnd);
         
-        // Basit tıklama ile taşıma (Mobil/Hızlı kullanım için opsiyonel)
+        // Mobil ve Masaüstü Click/Tap Transfer (En güvenilir yöntem)
         div.addEventListener('click', () => handleClickTransfer(div));
 
         return div;
     }
 
-    /* --- DRAG & DROP MANTIĞI (Insert Anywhere) --- */
-    
     const zone = document.getElementById('drop-zone');
 
     function setupDragAndDrop() {
@@ -94,9 +229,6 @@
 
     function handleDragStart(e) {
         draggedItem = this;
-        dragSource = this.parentElement.id === 'drop-zone' ? 'zone' : 'pool';
-        
-        // Görsel efekt için gecikme
         setTimeout(() => this.classList.add('dragging'), 0);
         e.dataTransfer.effectAllowed = 'move';
     }
@@ -108,9 +240,7 @@
     }
 
     function handleDragOver(e) {
-        e.preventDefault(); // Drop'a izin ver
-        
-        // Hangi elemandan sonra ekleyeceğiz?
+        e.preventDefault(); 
         const afterElement = getDragAfterElement(zone, e.clientX);
         const placeholder = document.getElementById('placeholder-msg');
         if(placeholder) placeholder.style.display = 'none';
@@ -123,17 +253,11 @@
         }
     }
 
-    // Fare pozisyonuna göre en yakın elemanı bulma (INSERT MANTIĞI BURADA)
     function getDragAfterElement(container, x) {
-        // Sadece sürüklenmeyen elemanları al
         const draggableElements = [...container.querySelectorAll('.word-chip:not(.dragging)')];
-
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            // Yatay eksende (x) merkeze göre konum
             const offset = x - box.left - box.width / 2;
-            
-            // Mouse elemanın solundaysa (offset negatif) ve en büyük negatifse (en yakın)
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
             } else {
@@ -142,34 +266,20 @@
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    function handleDrop(e) {
-        e.preventDefault();
-        
-        // Eğer havuzdan geldiyse, havuzdaki orijinalini "used" yap
-        if(dragSource === 'pool') {
-            const originalId = draggedItem.id;
-            // Biz şu an kopyasını (veya kendisini) taşıdık. 
-            // Ancak UI mantığı gereği, havuzda "silik" bir kopyası kalsın istiyorsak:
-            // Bu örnekte direkt taşıma yapıyoruz, havuzda kalmıyor.
-            // Eğer havuzda kalsın istiyorsan klonlama mantığı gerekir. 
-            // Basitlik için direkt taşıma yapıyoruz.
-        }
-        updatePreview();
-    }
+    function handleDrop(e) { e.preventDefault(); updatePreview(); }
 
-    /* --- TIKLAYARAK TAŞIMA (Alternatif) --- */
+    // --- AKILLI TRANSFER (Hem Mobil Hem PC için en iyisi) ---
     function handleClickTransfer(el) {
         const parent = el.parentElement;
         const placeholder = document.getElementById('placeholder-msg');
-
+        
+        // Eğer havuzdaysa -> Hedefe ekle
         if (parent.id === 'source-pool') {
-            // Havuzdan Zone'a (Sona ekle)
             if(placeholder) placeholder.style.display = 'none';
             zone.appendChild(el);
         } else {
-            // Zone'dan Havuza (Geri gönder)
-            const pool = document.getElementById('source-pool');
-            pool.appendChild(el);
+            // Eğer hedefteyse -> Havuza geri gönder
+            document.getElementById('source-pool').appendChild(el);
             if(zone.children.length === 1) { // Sadece placeholder kaldıysa
                  if(placeholder) placeholder.style.display = 'block';
             }
@@ -178,21 +288,17 @@
     }
 
     function updatePreview() {
-        // Zone içindeki kelimeleri sırayla oku
         const chips = zone.querySelectorAll('.word-chip');
         let text = "";
         chips.forEach(chip => text += chip.dataset.val);
         document.getElementById('preview-text').innerText = text;
-        
         if(chips.length === 0) {
             const ph = document.getElementById('placeholder-msg');
             if(ph) ph.style.display = 'block';
         }
     }
 
-    function resetLevel() {
-        loadQuestion();
-    }
+    function resetLevel() { loadQuestion(); }
 
     function checkAnswer() {
         const chips = zone.querySelectorAll('.word-chip');
@@ -204,22 +310,21 @@
         const btn = document.getElementById('action-btn');
 
         if (userAns === correctAns) {
-            // DOĞRU
             document.getElementById('drop-zone').className = "construction-zone correct";
-            fb.innerText = "Harika! Doğru sıralama. 🎉";
+            fb.innerText = "Harika! Doğru. 🎉";
             fb.style.color = "var(--success)";
             
+            lastCorrectAnswer = userAns;
+            readOutLoud(userAns);
+
             btn.innerText = "Sonraki Soru >>";
             btn.onclick = () => { currentQ++; loadQuestion(); };
         } else {
-            // YANLIŞ
             document.getElementById('drop-zone').className = "construction-zone wrong";
             setTimeout(() => document.getElementById('drop-zone').className = "construction-zone", 500);
-            
-            fb.innerText = "Henüz olmadı. Sıralamayı kontrol et.";
+            fb.innerText = "Hatalı sıralama.";
             fb.style.color = "var(--error)";
         }
     }
 
-    // Başlangıç
     startQuiz();

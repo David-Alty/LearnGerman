@@ -1,4 +1,4 @@
-          :root {
+         :root {
             --primary: #2980b9;
             --accent: #3498db;
             --success: #27ae60;
@@ -15,18 +15,20 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            user-select: none; /* Metin seçimini engelle, sürüklemeyi kolaylaştır */
+            padding: 10px; /* Mobilde kenar boşluğunu azalttık */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Mobil tıklama efektini düzeltir */
         }
 
         .container {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            width: 95%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
             max-width: 800px;
             text-align: center;
+            box-sizing: border-box; /* Padding taşmasını engeller */
         }
 
         .header-info {
@@ -34,18 +36,20 @@
             justify-content: space-between;
             color: #7f8c8d;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
         }
 
         .question-box {
             background-color: #fff;
-            padding: 15px;
+            padding: 10px;
             border-bottom: 2px solid #bdc3c7;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .number-display {
-            font-size: 4em;
+            /* Mobilde taşmayı önlemek için clamp kullanıyoruz */
+            font-size: clamp(3em, 10vw, 5em); 
             font-weight: 800;
             color: var(--error);
             margin: 0;
@@ -56,28 +60,29 @@
             color: #7f8c8d;
             font-style: italic;
             margin-top: 5px;
+            font-size: 0.9rem;
         }
 
-        /* --- İNŞAAT ALANI (Target Zone) --- */
+        .instruction-text {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* --- OYUN ALANLARI --- */
         .construction-zone {
             min-height: 80px;
             border: 3px dashed var(--accent);
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: #f7f9fa;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center; /* Ortala */
+            flex-wrap: wrap; /* Mobilde alt alta geçebilsin */
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            padding: 15px;
+            gap: 8px;
+            padding: 10px;
             margin-bottom: 10px;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .construction-zone.drag-over {
-            background-color: #ebf5fb;
-            border-color: #2980b9;
-            border-style: solid;
+            transition: all 0.3s;
         }
 
         .construction-zone.correct {
@@ -92,75 +97,64 @@
             animation: shake 0.4s;
         }
 
-        /* --- KELİME KARTLARI (Draggables) --- */
+        /* --- KELİME KARTLARI (Responsive) --- */
         .word-chip {
             background-color: white;
             border: 2px solid #34495e;
             color: #34495e;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: grab;
-            font-size: 1.2em;
+            padding: 12px 16px; /* Parmak için daha geniş alan */
+            border-radius: 10px;
+            cursor: pointer; /* Mobilde el işareti */
+            font-size: 1.1em;
             font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s, box-shadow 0.1s;
-            touch-action: none; /* Mobilde sürükleme iyileştirmesi */
+            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background-color 0.2s;
+            touch-action: manipulation; /* Dokunma gecikmesini önler */
         }
 
         .word-chip:active {
-            cursor: grabbing;
+            transform: scale(0.95);
+            background-color: #dfe6e9;
         }
 
-        /* Sürüklenirkenki görünüm */
-        .word-chip.dragging {
-            opacity: 0.5;
-            transform: scale(0.9);
-            box-shadow: none;
-        }
-
-        /* İnşaat alanındaki çipler */
+        /* İnşaat alanındaki görünüm */
         .construction-zone .word-chip {
             background-color: var(--accent);
             color: white;
             border-color: #2980b9;
         }
 
-        /* --- HAVUZ (Source Pool) --- */
         .word-pool {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 12px;
-            padding: 20px;
+            gap: 10px;
+            padding: 15px;
             background-color: #ecf0f1;
-            border-radius: 10px;
-            min-height: 60px;
+            border-radius: 12px;
+            min-height: 80px;
+            margin-top: 5px;
         }
 
-        /* Havuzda seçilmiş olanlar silikleşsin */
-        .word-pool .word-chip.used {
-            opacity: 0.2;
-            pointer-events: none;
-            background-color: #95a5a6;
-            border-color: #7f8c8d;
-            box-shadow: none;
-        }
-
+        /* --- BUTONLAR VE KONTROLLER --- */
         .controls {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             justify-content: center;
-            gap: 15px;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 12px 30px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 25px;
-            font-size: 1.1em;
+            border-radius: 50px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s;
+            min-width: 120px; /* Mobilde butonlar çok küçülmesin */
         }
         .btn:active { transform: scale(0.95); }
 
@@ -169,10 +163,60 @@
 
         .text-preview {
             font-family: monospace;
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #555;
-            height: 30px;
-            margin-top: 10px;
+            height: 25px;
+            margin-top: 5px;
+            overflow-x: auto; /* Çok uzun kelimelerde kaydırma */
+            white-space: nowrap;
+        }
+
+        /* --- HIZ KONTROL --- */
+        .speed-control {
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #f1f2f6;
+            border-radius: 20px;
+            display: inline-flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        
+        #voice-status {
+            font-size: 0.75em;
+            color: #95a5a6;
+            margin-top: 8px;
+        }
+
+        /* --- MOBİL İÇİN ÖZEL AYARLAR (MEDIA QUERIES) --- */
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .word-chip {
+                padding: 10px 14px;
+                font-size: 1rem;
+                flex-grow: 1; /* Kutuları yayarak doldur */
+                text-align: center;
+                max-width: 48%; /* Yan yana en fazla 2 tane sığsın (küçük ekran) */
+            }
+
+            .construction-zone .word-chip {
+                flex-grow: 0; /* Yukarıdaki alanda yayılmasın, yan yana dursun */
+                max-width: auto;
+            }
+
+            .controls {
+                flex-direction: column-reverse; /* Mobilde 'Kontrol Et' üstte olsun */
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%; /* Butonlar tam genişlik */
+                padding: 15px;
+            }
         }
 
         @keyframes shake {

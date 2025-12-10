@@ -2,11 +2,11 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Almanca</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 5 3%22><rect width=%225%22 height=%223%22 y=%220%22 fill=%22%23000000%22/><rect width=%225%22 height=%222%22 y=%221%22 fill=%22%23DD0000%22/><rect width=%225%22 height=%221%22 y=%222%22 fill=%22%23FFCE00%22/></svg>">
-  <link rel="stylesheet" href="style.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Learn German</title>
+    <link rel="stylesheet" href="style.css">
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 5 3%22><rect width=%225%22 height=%223%22 y=%220%22 fill=%22%23000000%22/><rect width=%225%22 height=%222%22 y=%221%22 fill=%22%23DD0000%22/><rect width=%225%22 height=%221%22 y=%222%22 fill=%22%23FFCE00%22/></svg>">
+   </head>
 <body>
 
 <div class="container" id="quiz-screen">
@@ -20,31 +20,41 @@
         <div class="hint-text" id="target-hint"></div>
     </div>
 
-    <p>Parçaları aşağıdaki kutuya sürükleyin (Araya ekleme yapabilirsiniz):</p>
+    <p class="instruction-text" id="instruction-txt">Parçalara dokunarak veya sürükleyerek birleştirin:</p>
 
     <div class="construction-zone" id="drop-zone">
-        <span style="color:#bdc3c7; pointer-events:none;" id="placeholder-msg">Parçaları buraya bırakın...</span>
+        <span style="color:#bdc3c7; pointer-events:none; font-size:0.9em;" id="placeholder-msg">Buraya bırakın...</span>
     </div>
 
     <div class="text-preview" id="preview-text"></div>
 
     <div class="word-pool" id="source-pool">
-        </div>
+    </div>
 
-    <h3 id="feedback-msg" style="height: 25px;"></h3>
+    <h3 id="feedback-msg" style="height: 25px; margin: 10px 0;"></h3>
 
     <div class="controls">
         <button class="btn btn-reset" onclick="resetLevel()">Sıfırla</button>
         <button class="btn btn-check" id="action-btn" onclick="checkAnswer()">Kontrol Et</button>
     </div>
+
+    <div class="speed-control">
+        <strong>🔊 Hız:</strong>
+        <label style="display:flex; align-items:center; gap:5px;">
+            <input type="radio" name="speed" value="0.6" onchange="setSpeed(0.6)"> Yavaş
+        </label>
+        <label style="display:flex; align-items:center; gap:5px;">
+            <input type="radio" name="speed" value="0.9" onchange="setSpeed(0.9)" checked> Normal
+        </label>
+    </div>
+    <div id="voice-status">Ses motoru yükleniyor...</div>
 </div>
 
 <div class="container" id="end-screen" style="display: none;">
     <h1 style="color: var(--success)">Tebrikler! 🎓</h1>
-    <p>Almanca sayı kurallarını ustaca birleştirdin.</p>
-    <button class="btn btn-check" onclick="startQuiz()">Yeniden Başla</button>
+    <p>Bu turu başarıyla tamamladın.</p>
+    <button class="btn btn-check" onclick="startQuiz()">Yeni Oyun Başlat</button>
 </div>
-
 <script src="main.js"></script>
 </body>
 </html>
