@@ -1,0 +1,183 @@
+          :root {
+            --primary: #2980b9;
+            --accent: #3498db;
+            --success: #27ae60;
+            --error: #c0392b;
+            --bg: #ecf0f1;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            user-select: none; /* Metin seçimini engelle, sürüklemeyi kolaylaştır */
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 95%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            background-color: #fff;
+            padding: 15px;
+            border-bottom: 2px solid #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .number-display {
+            font-size: 4em;
+            font-weight: 800;
+            color: var(--error);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .hint-text {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* --- İNŞAAT ALANI (Target Zone) --- */
+        .construction-zone {
+            min-height: 80px;
+            border: 3px dashed var(--accent);
+            border-radius: 10px;
+            background-color: #f7f9fa;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Ortala */
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .construction-zone.drag-over {
+            background-color: #ebf5fb;
+            border-color: #2980b9;
+            border-style: solid;
+        }
+
+        .construction-zone.correct {
+            border-color: var(--success);
+            background-color: #eafaf1;
+            border-style: solid;
+        }
+
+        .construction-zone.wrong {
+            border-color: var(--error);
+            background-color: #fadbd8;
+            animation: shake 0.4s;
+        }
+
+        /* --- KELİME KARTLARI (Draggables) --- */
+        .word-chip {
+            background-color: white;
+            border: 2px solid #34495e;
+            color: #34495e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: grab;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+            touch-action: none; /* Mobilde sürükleme iyileştirmesi */
+        }
+
+        .word-chip:active {
+            cursor: grabbing;
+        }
+
+        /* Sürüklenirkenki görünüm */
+        .word-chip.dragging {
+            opacity: 0.5;
+            transform: scale(0.9);
+            box-shadow: none;
+        }
+
+        /* İnşaat alanındaki çipler */
+        .construction-zone .word-chip {
+            background-color: var(--accent);
+            color: white;
+            border-color: #2980b9;
+        }
+
+        /* --- HAVUZ (Source Pool) --- */
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            min-height: 60px;
+        }
+
+        /* Havuzda seçilmiş olanlar silikleşsin */
+        .word-pool .word-chip.used {
+            opacity: 0.2;
+            pointer-events: none;
+            background-color: #95a5a6;
+            border-color: #7f8c8d;
+            box-shadow: none;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        .btn-check { background-color: var(--success); color: white; }
+        .btn-reset { background-color: #95a5a6; color: white; }
+
+        .text-preview {
+            font-family: monospace;
+            font-size: 1.2em;
+            color: #555;
+            height: 30px;
+            margin-top: 10px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    
