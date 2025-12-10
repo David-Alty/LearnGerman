@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Learn German</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 5 3%22><rect width=%225%22 height=%223%22 y=%220%22 fill=%22%23000000%22/><rect width=%225%22 height=%222%22 y=%221%22 fill=%22%23DD0000%22/><rect width=%225%22 height=%221%22 y=%222%22 fill=%22%23FFCE00%22/></svg>">
     <link rel="stylesheet" href="style.css">
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 5 3%22><rect width=%225%22 height=%223%22 y=%220%22 fill=%22%23000000%22/><rect width=%225%22 height=%222%22 y=%221%22 fill=%22%23DD0000%22/><rect width=%225%22 height=%221%22 y=%222%22 fill=%22%23FFCE00%22/></svg>">
    </head>
 <body>
-
 <div class="container" id="quiz-screen">
     <div class="header-info">
-        <span>Almanca Sayı Mimarı</span>
+        <span>Almanca Öğren</span>
         <span id="q-counter">Soru 1 / 10</span>
     </div>
 
@@ -38,16 +37,24 @@
         <button class="btn btn-check" id="action-btn" onclick="checkAnswer()">Kontrol Et</button>
     </div>
 
-    <div class="speed-control">
-        <strong>🔊 Hız:</strong>
-        <label style="display:flex; align-items:center; gap:5px;">
-            <input type="radio" name="speed" value="0.6" onchange="setSpeed(0.6)"> Yavaş
-        </label>
-        <label style="display:flex; align-items:center; gap:5px;">
-            <input type="radio" name="speed" value="0.9" onchange="setSpeed(0.9)" checked> Normal
-        </label>
+    <div class="settings-panel">
+        <div class="speed-control">
+            <strong>🔊 Hız:</strong>
+            <label style="display:flex; align-items:center; gap:5px;">
+                <input type="radio" name="speed" value="0.6" onchange="setSpeed(0.6)"> Yavaş
+            </label>
+            <label style="display:flex; align-items:center; gap:5px;">
+                <input type="radio" name="speed" value="0.9" onchange="setSpeed(0.9)" checked> Normal
+            </label>
+        </div>
+
+        <div class="voice-select-wrapper">
+            <label for="voice-select" style="font-size:0.8em; color:#7f8c8d; margin-bottom:5px;">Ses Motoru:</label>
+            <select id="voice-select" onchange="manualVoiceSelect()">
+                <option value="">Sesler Yükleniyor...</option>
+            </select>
+        </div>
     </div>
-    <div id="voice-status">Ses motoru yükleniyor...</div>
 </div>
 
 <div class="container" id="end-screen" style="display: none;">

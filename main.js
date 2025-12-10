@@ -1,33 +1,80 @@
-    // --- SES MOTORU (GELİŞMİŞ & HATASIZ) ---
-    let selectedVoice = null;
+  // --- GELİŞMİŞ SES SEÇİM SİSTEMİ ---
     let synth = window.speechSynthesis;
+    let selectedVoice = null;
+    let voices = [];
 
-    function loadVoices() {
+    // Tüm sesleri al ve dropdown'a doldur
+    function populateVoiceList() {
         if (!synth) return;
         
-        const voices = synth.getVoices();
-        if (voices.length === 0) return;
+        voices = synth.getVoices().sort(function (a, b) {
+            const aname = a.name.toUpperCase();
+            const bname = b.name.toUpperCase();
+            if (aname < bname) return -1;
+            else if (aname == bname) return 0;
+            return +1;
+        });
 
-        // Mobilde ve Masaüstünde en iyi Almanca sesini bul
-        let bestVoice = voices.find(v => v.name.includes("Google Deutsch") || v.name.includes("Google German"));
-        if (!bestVoice) bestVoice = voices.find(v => v.lang === "de-DE" && v.name.includes("Natural")); // Edge
-        if (!bestVoice) bestVoice = voices.find(v => v.lang.startsWith("de")); // Herhangi bir Almanca
+        const select = document.getElementById('voice-select');
+        select.innerHTML = ''; // Temizle
 
-        if (bestVoice) {
-            selectedVoice = bestVoice;
-            document.getElementById('voice-status').innerText = `Ses: ${bestVoice.name.replace(/Microsoft |Google /g, '').substring(0, 20)}`;
-        } else {
-            document.getElementById('voice-status').innerText = "Cihazınızda Almanca ses paketi bulunamadı.";
+        // Sadece Almanca sesleri filtrele
+        const germanVoices = voices.filter(v => v.lang.startsWith('de'));
+        
+        if(germanVoices.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = "Cihazda Almanca Ses Bulunamadı :(";
+            select.appendChild(option);
+            return;
         }
+
+        // Dropdown'a ekle
+        germanVoices.forEach((voice) => {
+            const option = document.createElement('option');
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.setAttribute('data-name', voice.name);
+            option.setAttribute('data-lang', voice.lang);
+            select.appendChild(option);
+        });
+
+        // OTOMATİK EN İYİ SESİ SEÇME MANTIĞI
+        // 1. Google Deutsch (Varsa öncelikli)
+        let bestIndex = -1;
+        bestIndex = germanVoices.findIndex(v => v.name.includes("Google Deutsch") || v.name.includes("Google German"));
+        
+        // 2. Yoksa: Anna, Martin, Petra (iOS/Mac Kaliteli Sesler)
+        if (bestIndex === -1) {
+            bestIndex = germanVoices.findIndex(v => ["Anna", "Martin", "Petra", "Markus"].some(n => v.name.includes(n)));
+        }
+
+        // 3. Yine de bulamadıysak ilk sıradakini seç
+        if (bestIndex === -1) bestIndex = 0;
+
+        // Seçimi uygula
+        select.selectedIndex = bestIndex;
+        manualVoiceSelect(); // Değişkeni güncelle
     }
 
+    // Kullanıcı listeden elle seçim yaparsa
+    function manualVoiceSelect() {
+        const select = document.getElementById('voice-select');
+        const selectedOption = select.selectedOptions[0];
+        const name = selectedOption.getAttribute('data-name');
+        
+        // Seçilen ismi voices listesinde bul
+        selectedVoice = voices.find(v => v.name === name);
+        
+        // Test etmek için "Deutsch" de
+        // readOutLoud("Deutsch"); // (İstersen açabilirsin ama oyun akışını bozabilir)
+    }
+
+    // Tarayıcı sesleri yüklediğinde listeyi güncelle
     if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
+        speechSynthesis.onvoiceschanged = populateVoiceList;
     }
-    // Mobil tarayıcılar bazen geç yükler, 500ms sonra tekrar dene
-    setTimeout(loadVoices, 500);
+    setTimeout(populateVoiceList, 500); // Mobil için yedek tetikleme
 
-    // --- OYUN AYARLARI ---
+    // --- OYUN KODLARI (STANDART) ---
     const UNITS = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"];
     const TENS = ["", "zehn", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"];
     
@@ -39,12 +86,10 @@
         if(lastCorrectAnswer) readOutLoud(lastCorrectAnswer);
     }
 
-    // Mobil Algılama
     function isMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
     
-    // Talimatları cihaza göre değiştir
     if(isMobile()) {
         document.getElementById('instruction-txt').innerText = "Kelimelere dokunarak yukarı taşıyın:";
         document.getElementById('placeholder-msg').innerText = "Dokunarak ekle...";
@@ -147,8 +192,14 @@
         if (synth) {
             synth.cancel(); 
             const utterance = new SpeechSynthesisUtterance(text);
-            if (selectedVoice) utterance.voice = selectedVoice;
-            else utterance.lang = 'de-DE';
+            
+            // Eğer dropdown'dan bir ses seçildiyse onu kullan
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                utterance.lang = 'de-DE'; // Fallback
+            }
+            
             utterance.rate = currentSpeed; 
             synth.speak(utterance);
         }
@@ -161,7 +212,7 @@
         currentQ = 0;
         lastCorrectAnswer = "";
         loadQuestion();
-        loadVoices();
+        populateVoiceList();
     }
 
     function loadQuestion() {
@@ -204,16 +255,13 @@
     function createChip(text, id) {
         const div = document.createElement('div');
         div.classList.add('word-chip');
-        div.setAttribute('draggable', 'true'); // Masaüstü için
+        div.setAttribute('draggable', 'true'); 
         div.innerText = text;
         div.id = id;
         div.dataset.val = text;
         
-        // Masaüstü Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragend', handleDragEnd);
-        
-        // Mobil ve Masaüstü Click/Tap Transfer (En güvenilir yöntem)
         div.addEventListener('click', () => handleClickTransfer(div));
 
         return div;
@@ -268,19 +316,16 @@
 
     function handleDrop(e) { e.preventDefault(); updatePreview(); }
 
-    // --- AKILLI TRANSFER (Hem Mobil Hem PC için en iyisi) ---
     function handleClickTransfer(el) {
         const parent = el.parentElement;
         const placeholder = document.getElementById('placeholder-msg');
         
-        // Eğer havuzdaysa -> Hedefe ekle
         if (parent.id === 'source-pool') {
             if(placeholder) placeholder.style.display = 'none';
             zone.appendChild(el);
         } else {
-            // Eğer hedefteyse -> Havuza geri gönder
             document.getElementById('source-pool').appendChild(el);
-            if(zone.children.length === 1) { // Sadece placeholder kaldıysa
+            if(zone.children.length === 1) { 
                  if(placeholder) placeholder.style.display = 'block';
             }
         }

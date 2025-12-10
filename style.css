@@ -1,4 +1,4 @@
-         :root {
+        :root {
             --primary: #2980b9;
             --accent: #3498db;
             --success: #27ae60;
@@ -15,9 +15,9 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 10px; /* Mobilde kenar boşluğunu azalttık */
+            padding: 10px;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Mobil tıklama efektini düzeltir */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -28,7 +28,7 @@
             width: 100%;
             max-width: 800px;
             text-align: center;
-            box-sizing: border-box; /* Padding taşmasını engeller */
+            box-sizing: border-box;
         }
 
         .header-info {
@@ -48,7 +48,6 @@
         }
 
         .number-display {
-            /* Mobilde taşmayı önlemek için clamp kullanıyoruz */
             font-size: clamp(3em, 10vw, 5em); 
             font-weight: 800;
             color: var(--error);
@@ -69,14 +68,13 @@
             font-size: 0.95rem;
         }
 
-        /* --- OYUN ALANLARI --- */
         .construction-zone {
             min-height: 80px;
             border: 3px dashed var(--accent);
             border-radius: 12px;
             background-color: #f7f9fa;
             display: flex;
-            flex-wrap: wrap; /* Mobilde alt alta geçebilsin */
+            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
             gap: 8px;
@@ -97,19 +95,18 @@
             animation: shake 0.4s;
         }
 
-        /* --- KELİME KARTLARI (Responsive) --- */
         .word-chip {
             background-color: white;
             border: 2px solid #34495e;
             color: #34495e;
-            padding: 12px 16px; /* Parmak için daha geniş alan */
+            padding: 12px 16px;
             border-radius: 10px;
-            cursor: pointer; /* Mobilde el işareti */
+            cursor: pointer;
             font-size: 1.1em;
             font-weight: bold;
             box-shadow: 0 3px 5px rgba(0,0,0,0.1);
             transition: transform 0.1s, background-color 0.2s;
-            touch-action: manipulation; /* Dokunma gecikmesini önler */
+            touch-action: manipulation;
         }
 
         .word-chip:active {
@@ -117,7 +114,6 @@
             background-color: #dfe6e9;
         }
 
-        /* İnşaat alanındaki görünüm */
         .construction-zone .word-chip {
             background-color: var(--accent);
             color: white;
@@ -136,7 +132,6 @@
             margin-top: 5px;
         }
 
-        /* --- BUTONLAR VE KONTROLLER --- */
         .controls {
             margin-top: 20px;
             display: flex;
@@ -154,7 +149,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s;
-            min-width: 120px; /* Mobilde butonlar çok küçülmesin */
+            min-width: 120px;
         }
         .btn:active { transform: scale(0.95); }
 
@@ -167,56 +162,67 @@
             color: #555;
             height: 25px;
             margin-top: 5px;
-            overflow-x: auto; /* Çok uzun kelimelerde kaydırma */
+            overflow-x: auto;
             white-space: nowrap;
         }
 
-        /* --- HIZ KONTROL --- */
-        .speed-control {
+        /* --- YENİ SES KONTROL PANELİ --- */
+        .settings-panel {
             margin-top: 20px;
-            padding: 8px 15px;
-            background-color: #f1f2f6;
-            border-radius: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #e1e8ed;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .speed-control {
             display: inline-flex;
             gap: 15px;
             align-items: center;
             font-size: 0.9em;
         }
+
+        /* Ses Seçim Menüsü */
+        .voice-select-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
         
-        #voice-status {
-            font-size: 0.75em;
-            color: #95a5a6;
-            margin-top: 8px;
+        select#voice-select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+            font-size: 0.9em;
+            width: 100%;
+            max-width: 300px;
+            background-color: white;
+            color: #2c3e50;
         }
 
-        /* --- MOBİL İÇİN ÖZEL AYARLAR (MEDIA QUERIES) --- */
         @media (max-width: 600px) {
-            .container {
-                padding: 1rem;
-            }
-            
+            .container { padding: 1rem; }
             .word-chip {
                 padding: 10px 14px;
                 font-size: 1rem;
-                flex-grow: 1; /* Kutuları yayarak doldur */
+                flex-grow: 1;
                 text-align: center;
-                max-width: 48%; /* Yan yana en fazla 2 tane sığsın (küçük ekran) */
+                max-width: 48%;
             }
-
             .construction-zone .word-chip {
-                flex-grow: 0; /* Yukarıdaki alanda yayılmasın, yan yana dursun */
+                flex-grow: 0;
                 max-width: auto;
             }
-
             .controls {
-                flex-direction: column-reverse; /* Mobilde 'Kontrol Et' üstte olsun */
+                flex-direction: column-reverse;
                 width: 100%;
             }
-
-            .btn {
-                width: 100%; /* Butonlar tam genişlik */
-                padding: 15px;
-            }
+            .btn { width: 100%; padding: 15px; }
         }
 
         @keyframes shake {
@@ -224,4 +230,3 @@
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
-    
