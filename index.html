@@ -3,15 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Learn German</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 5 3%22><rect width=%225%22 height=%223%22 y=%220%22 fill=%22%23000000%22/><rect width=%225%22 height=%222%22 y=%221%22 fill=%22%23DD0000%22/><rect width=%225%22 height=%221%22 y=%222%22 fill=%22%23FFCE00%22/></svg>">
+    <title>Almanca Eğitim Seti A1 - Full Paket</title>
     <link rel="stylesheet" href="style.css">
-   </head>
+</head>
 <body>
-<div class="container" id="quiz-screen">
-    <div class="header-info">
-        <span>Almanca Öğren</span>
-        <span id="q-counter">Soru 1 / 10</span>
+<div class="container" id="menu-screen">
+    <h1 style="color: var(--primary); margin: 10px 0;">Almanca A1 Eğitim Seti</h1>
+    
+    <div class="settings-bar">
+        <span>🔊 Ses:</span>
+        <select id="voice-select-main" onchange="manualVoiceSelect('voice-select-main')">
+            <option>Yükleniyor...</option>
+        </select>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card" onclick="startGame('numbers')">
+            <div class="menu-icon">🔢</div>
+            <div class="menu-title">Sayılar</div>
+            <div class="menu-sub">0 - 1000 Arası</div>
+        </div>
+
+        <div class="menu-card" onclick="startGame('years')">
+            <div class="menu-icon">📅</div>
+            <div class="menu-title">Tarihler</div>
+            <div class="menu-sub">Yılların Okunuşu</div>
+        </div>
+
+        <div class="menu-card" onclick="startGame('days')">
+            <div class="menu-icon">🗓️</div>
+            <div class="menu-title">Takvim</div>
+            <div class="menu-sub">Günler & Aylar</div>
+        </div>
+
+        <div class="menu-card" onclick="startGame('vocab')">
+            <div class="menu-icon">📚</div>
+            <div class="menu-title">A1 Kelimeler</div>
+            <div class="menu-sub">İsim, Sıfat, Fiil</div>
+        </div>
+
+        <div class="menu-card new-module" onclick="startGame('greetings')">
+            <div class="menu-icon">👋</div>
+            <div class="menu-title">Selamlaşma</div>
+            <div class="menu-sub">Hallo, Moin, Tschüss</div>
+        </div>
+
+        <div class="menu-card new-module" onclick="startGame('dialogue')">
+            <div class="menu-icon">💬</div>
+            <div class="menu-title">Tanışma</div>
+            <div class="menu-sub">Cümle Kurma</div>
+        </div>
+
+        <div class="menu-card new-module" onclick="startGame('grammar')">
+            <div class="menu-icon">⚙️</div>
+            <div class="menu-title">Gramer</div>
+            <div class="menu-sub">Haben/Sein & Fiiller</div>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="quiz-screen" style="display: none;">
+    
+    <div class="top-bar">
+        <button class="back-btn" onclick="showMenu()">🏠</button>
+        
+        <div class="settings-bar" style="background:none; padding:0; margin:0;">
+            <select id="voice-select-game" onchange="manualVoiceSelect('voice-select-game')" style="font-size:0.8em;">
+                <option>Ses Seç</option>
+            </select>
+            <div style="display:flex; gap:5px; align-items:center; font-size:0.8em;">
+                <span>Hız:</span>
+                <input type="radio" name="speed" value="0.6" onchange="setSpeed(0.6)">🐢
+                <input type="radio" name="speed" value="0.9" onchange="setSpeed(0.9)" checked>🐇
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; font-size:0.9em; color:#7f8c8d;">
+        <span id="game-title">Kategori</span>
+        <span id="q-counter">1 / 10</span>
     </div>
 
     <div class="question-box">
@@ -19,48 +89,30 @@
         <div class="hint-text" id="target-hint"></div>
     </div>
 
-    <p class="instruction-text" id="instruction-txt">Parçalara dokunarak veya sürükleyerek birleştirin:</p>
-
     <div class="construction-zone" id="drop-zone">
-        <span style="color:#bdc3c7; pointer-events:none; font-size:0.9em;" id="placeholder-msg">Buraya bırakın...</span>
+        <span style="color:#bdc3c7; pointer-events:none; font-size:0.8em;" id="placeholder-msg">Parçaları buraya sürükleyin/dokunun...</span>
     </div>
 
     <div class="text-preview" id="preview-text"></div>
 
-    <div class="word-pool" id="source-pool">
-    </div>
+    <div class="word-pool" id="source-pool"></div>
 
-    <h3 id="feedback-msg" style="height: 25px; margin: 10px 0;"></h3>
+    <h3 id="feedback-msg" style="height: 25px; margin: 5px 0;"></h3>
 
     <div class="controls">
         <button class="btn btn-reset" onclick="resetLevel()">Sıfırla</button>
+        <button class="btn btn-listen" id="listen-btn" onclick="playCurrentAnswer()">🔊 Dinle</button>
         <button class="btn btn-check" id="action-btn" onclick="checkAnswer()">Kontrol Et</button>
-    </div>
-
-    <div class="settings-panel">
-        <div class="speed-control">
-            <strong>🔊 Hız:</strong>
-            <label style="display:flex; align-items:center; gap:5px;">
-                <input type="radio" name="speed" value="0.6" onchange="setSpeed(0.6)"> Yavaş
-            </label>
-            <label style="display:flex; align-items:center; gap:5px;">
-                <input type="radio" name="speed" value="0.9" onchange="setSpeed(0.9)" checked> Normal
-            </label>
-        </div>
-
-        <div class="voice-select-wrapper">
-            <label for="voice-select" style="font-size:0.8em; color:#7f8c8d; margin-bottom:5px;">Ses Motoru:</label>
-            <select id="voice-select" onchange="manualVoiceSelect()">
-                <option value="">Sesler Yükleniyor...</option>
-            </select>
-        </div>
     </div>
 </div>
 
 <div class="container" id="end-screen" style="display: none;">
     <h1 style="color: var(--success)">Tebrikler! 🎓</h1>
-    <p>Bu turu başarıyla tamamladın.</p>
-    <button class="btn btn-check" onclick="startQuiz()">Yeni Oyun Başlat</button>
+    <p>Bu bölümü başarıyla tamamladın.</p>
+    <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="btn btn-reset" onclick="showMenu()">Ana Menü</button>
+        <button class="btn btn-check" onclick="restartCurrentGame()">Tekrar Oyna</button>
+    </div>
 </div>
 <script src="main.js"></script>
 </body>
