@@ -1,3 +1,31 @@
+        /* --- PDF'DEN GELEN YENİ MODÜL: SIFAT ÇEKİM FORMÜLÜ --- */
+        const ADJECTIVE_FORMULA_DATA = [
+            // Belirli Artikeller: Yalın Hal (Artikel belli + Yalın hal = -e) [cite: 145]
+            { q: "Der alt__ Mann.", ans: "e", alts: ["en", "er"], hint: "Değişim yok, artikel belli (Der) [cite: 135, 149, 152]" },
+            { q: "Das gelb__ Auto.", ans: "e", alts: ["es", "en"], hint: "Nominativ + Belirli Artikel = -e [cite: 135, 143]" },
+            // Altın Kural: Değişim Varsa '-en' Gelir! [cite: 147]
+            { q: "Ich sehe den alt__ Mann.", ans: "en", alts: ["e", "er"], hint: "Der -> Den oldu (Değişim Var!) [cite: 155, 156, 157]" },
+            { q: "Ich helfe dem alt__ Mann.", ans: "en", alts: ["e", "em"], hint: "Dativ'de artikel değiştiği için -en gelir [cite: 158, 159, 160]" },
+            // DNA Transferi: Belirsiz Artikeller (Cinsiyet gizliyse sıfat ucu alır) 
+            { q: "Ein alt__ Mann.", ans: "er", alts: ["e", "en"], hint: "Der'in 'er' takısı sıfata transfer olur (DNA Transfer) [cite: 176, 177, 178, 179]" },
+            { q: "Ein gelb__ Auto.", ans: "es", alts: ["e", "en"], hint: "Das'ın 's' takısı sıfata transfer olur [cite: 180, 181, 182]" },
+            // Belirsiz Artikellerde Değişim [cite: 187]
+            { q: "Ich brauche einen schwarz__ Pullover.", ans: "en", alts: ["er", "e"], hint: "Ein -> Einen oldu (Değişti!), sıfat -en alır [cite: 225, 226, 227]" },
+            // Çoğul Kullanımı (Genellikle -en) [cite: 165]
+            { q: "Die arm__ Kinder.", ans: "en", alts: ["e", "er"], hint: "Belirli artikelle çoğul her zaman -en alır [cite: 167, 168]" },
+            // Özel Durum: Değişim Yoksa! [cite: 229]
+            { q: "Er hat ein rot__ Auto.", ans: "es", alts: ["en", "e"], hint: "Akkusativ ama 'Ein' değişmedi, sıfat -es kalır [cite: 233, 237, 238]" }
+        ];
+        // Sıfat Formülü Modülü için soru üretici
+        function getAdjectiveFormulaQuestion() {
+            let item = ADJECTIVE_FORMULA_DATA[rdm(0, ADJECTIVE_FORMULA_DATA.length - 1)];
+            return {
+                val: item.q,
+                parts: [item.ans],
+                distractors: item.alts,
+                hint: item.hint
+            };
+        }
     /* --- VERİ TABANI --- */
     const UNITS = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"];
     const TENS = ["", "zehn", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"];
@@ -38,7 +66,7 @@
         { tr: "Merhaba (Güney Almanya)", de: "Grüß Gott", hint: "Bavyera/Avusturya bölgesi" },
         { tr: "Selam sana (Samimi)", de: "Grüß dich", hint: "Sadece 'sen' dediğin kişilere" },
         { tr: "Görüşürüz", de: "Tschüss", hint: "Samimi veda" },
-        { tr: "Görüşmek üzere", de: "Auf Wiedersehen", hint: "Resmi veda" }
+            { tr: "Görüşmek üzere", de: "Auf Wiedersehen", hint: "Resmi veda" }
     ];
 
     // 2. Diyalog ve Tanışma Modülü
@@ -52,7 +80,7 @@
         { tr: "Türkiye'den geliyorum.", de: "Ich komme aus der Türkei.", hint: "Dikkat: 'der' Türkei" },
         { tr: "Nerede oturuyorsun?", de: "Wo wohnst du?", hint: "İkamet sorma" },
         { tr: "Berlin'de oturuyorum.", de: "Ich wohne in Berlin.", hint: "Şehir ile kullanım" },
-        { tr: "Adın ne?", de: "Wie heißt du?", hint: "İsim sorma" }
+            { tr: "Adın ne?", de: "Wie heißt du?", hint: "İsim sorma" }
     ];
 
     // 3. Gramer Modülü (Haben/Sein & Fiil Çekimi)
@@ -72,6 +100,45 @@
         { q: "___ Stuhl (Sandalye)", ans: "Der", alts: ["Die", "Das"], hint: "Eril isim (Maskulin)" },
         { q: "___ Lampe (Lamba)", ans: "Die", alts: ["Der", "Das"], hint: "Dişil isim (Feminin)" },
         { q: "___ Buch (Kitap)", ans: "Das", alts: ["Der", "Die"], hint: "Nötr isim (Neutral)" }
+    ];
+
+    // 4. Zamirler & Haller Modülü (Akkusativ, Dativ, İyelik)
+    const PRONOUN_CASES_DATA = [
+        // Akkusativ (Kimi? Neyi?)
+        { q: "Ich liebe [seni].", ans: "dich", alts: ["dir", "du"], hint: "Akkusativ (Kimi?)" },
+        { q: "Ich sehe [onu].", ans: "ihn", alts: ["ihm", "er"], hint: "Akkusativ (Erkek)" },
+        { q: "Ich höre [onu/kadın].", ans: "sie", alts: ["ihr", "ihm"], hint: "Akkusativ (Kadın)" },
+        { q: "Ich besuche [bizi].", ans: "uns", alts: ["euch", "ihnen"], hint: "Akkusativ (Biz)" },
+        { q: "Ich brauche [sizi].", ans: "euch", alts: ["uns", "sie"], hint: "Akkusativ (Siz)" },
+        { q: "Ich finde [onları].", ans: "sie", alts: ["ihnen", "ihr"], hint: "Akkusativ (Onlar)" },
+        { q: "Ich komme für [seni].", ans: "dich", alts: ["dir", "du"], hint: "'Für' her zaman Akkusativ alır." },
+
+        // Dativ (Kime? Kimde? Kimden?)
+        { q: "Ich sage [sana].", ans: "dir", alts: ["dich", "du"], hint: "Dativ (Kime?)" },
+        { q: "Ich helfe [babama].", ans: "meinem Vater", alts: ["meinen Vater", "mein Vater"], hint: "Helfen fiili Dativ gerektirir (Der -> Dem)." },
+        { q: "Ich gebe [anneme] ein Buch.", ans: "meiner Mutter", alts: ["meine Mutter", "meinen Mutter"], hint: "Dativ (Dişil)" },
+        { q: "Kommst du mit [benimle]?", ans: "mir", alts: ["mich", "ich"], hint: "'Mit' her zaman Dativ alır." },
+        { q: "Ich gratuliere [sana/seni].", ans: "dir", alts: ["dich", "du"], hint: "Tebrik etmek Almancada Dativ alır!" },
+        { q: "Das Auto gehört [bana].", ans: "mir", alts: ["mich", "ich"], hint: "Gehören (Ait olmak) Dativ nesne alır." },
+        { q: "Das Buch ist von [ondan/erkek].", ans: "ihm", alts: ["ihn", "ihr"], hint: "Dativ (Von ile)" },
+
+        // Nominativ (Kim? Ne?)
+        { q: "[O/erkek] ist mein Freund.", ans: "er", alts: ["ihn", "ihm"], hint: "Nominativ (Özne)" },
+        { q: "[O/kadın] ist meine Lehrerin.", ans: "sie", alts: ["ihr", "ihre"], hint: "Nominativ (Özne)" },
+        { q: "[Biz] sind glücklich.", ans: "wir", alts: ["uns", "euch"], hint: "Nominativ (Özne)" },
+        { q: "[Siz] seid müde.", ans: "ihr", alts: ["euch", "sie"], hint: "Nominativ (Özne)" },
+
+        // Possessiv (İyelik)
+        { q: "Das ist [benim] Buch.", ans: "mein", alts: ["meine", "meinen"], hint: "Buch (Das) Nominativ halde." },
+        { q: "Das ist [benim] Auto.", ans: "mein", alts: ["meine", "meinen"], hint: "Auto (Das) Nominativ halde." },
+        { q: "Ich suche [babamı].", ans: "meinen", alts: ["mein", "meinem"], hint: "Vater (Der) Akkusativ'de 'den' olduğu için 'meinen' olur." },
+        { q: "Siehst du [kız kardeşimi]?", ans: "meine Schwester", alts: ["meiner Schwester", "meinen Schwester"], hint: "Schwester (Die) Akkusativ." },
+        { q: "Ich spreche mit [kardeşim/erkek].", ans: "meinem Bruder", alts: ["mein Bruder", "meinen Bruder"], hint: "Bruder (Der) Dativ." },
+        { q: "Das ist [onun/erkek] Buch.", ans: "sein", alts: ["seine", "seinen"], hint: "İyelik zamiri (Erkek)" },
+        { q: "Das ist [onun/kadın] Tasche.", ans: "ihre", alts: ["ihr", "ihren"], hint: "İyelik zamiri (Kadın)" },
+        { q: "Das ist [bizim] Haus.", ans: "unser", alts: ["unsere", "unseren"], hint: "İyelik zamiri (Biz)" },
+        { q: "Das ist [sizin] Auto.", ans: "euer", alts: ["eure", "euren"], hint: "İyelik zamiri (Siz)" },
+        { q: "Das ist [onların] Katze.", ans: "ihre", alts: ["ihr", "ihren"], hint: "İyelik zamiri (Onlar)" }
     ];
 
     // --- OYUN DEĞİŞKENLERİ ---
@@ -108,6 +175,8 @@
         else if(category === 'greetings') title = "Selamlaşma"; // Yeni
         else if(category === 'dialogue') title = "Tanışma Diyaloğu"; // Yeni
         else if(category === 'grammar') title = "Temel Gramer"; // Yeni
+        else if(category === 'pronouns') title = "Zamirler & Haller"; // Yeni modül
+        else if(category === 'adj_formula') title = "Sıfat Formülü";
         
         document.getElementById('game-title').innerText = title;
         populateVoiceList();
@@ -125,35 +194,167 @@
     // --- SORU ÜRETİMİ ---
     function generateQuestionsForCategory(cat) {
         let qList = [];
-        // Her kategori için 10 soru
-        for(let i=0; i<10; i++) {
-            let qData;
+        if (cat === 'adj_formula') {
+            // Sıfat formülü modülü için benzersiz sorular
+            let indexes = Array.from({length: ADJECTIVE_FORMULA_DATA.length}, (_, i) => i);
+            for (let i = indexes.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+            }
+            for (let i = 0; i < 10 && i < indexes.length; i++) {
+                let item = ADJECTIVE_FORMULA_DATA[indexes[i]];
+                qList.push({
+                    val: item.q,
+                    parts: [item.ans],
+                    distractors: item.alts,
+                    hint: item.hint
+                });
+            }
+            return qList;
+        } else if (cat === 'pronouns') {
+            // İlk 10 soru: PRONOUN_CASES_DATA'dan benzersiz sorular
+            let indexes = Array.from({length: PRONOUN_CASES_DATA.length}, (_, i) => i);
+            // Karıştır
+            for (let i = indexes.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+            }
+            for (let i = 0; i < 10 && i < indexes.length; i++) {
+                let item = PRONOUN_CASES_DATA[indexes[i]];
+                qList.push({
+                    val: item.q,
+                    parts: [item.ans],
+                    distractors: item.alts,
+                    hint: item.hint
+                });
+            }
+            // 10'dan sonra: Farklı, yeni sorular (örnekler)
+            const extraQuestions = [
+                { q: "Ich danke [anneme] sehr.", ans: "meiner Mutter", alts: ["meine Mutter", "meinen Mutter"], hint: "Danken fiili Dativ alır." },
+                { q: "Er sieht [babasını] jeden Tag.", ans: "seinen Vater", alts: ["seinem Vater", "sein Vater"], hint: "Akkusativ (Erkek)" },
+                { q: "Wir geben [çocuğa] ein Geschenk.", ans: "dem Kind", alts: ["das Kind", "den Kind"], hint: "Dativ (Das)" },
+                { q: "Das ist [senin] Stuhl.", ans: "dein", alts: ["deine", "deinen"], hint: "İyelik zamiri (Sen)" },
+                { q: "Sie spricht mit [onun/kadın] Mutter.", ans: "ihrer", alts: ["ihre", "ihren"], hint: "Dativ + İyelik" },
+                { q: "Ich frage [öğretmeni].", ans: "den Lehrer", alts: ["dem Lehrer", "des Lehrer"], hint: "Akkusativ (Der)" },
+                { q: "Das Geschenk ist für [seni].", ans: "dich", alts: ["dir", "du"], hint: "Für + Akkusativ" },
+                { q: "Wir helfen [çocuklara] immer.", ans: "den Kindern", alts: ["die Kinder", "der Kinder"], hint: "Dativ (Çoğul)" },
+                { q: "Das ist [bizim] Auto.", ans: "unser", alts: ["unsere", "unseren"], hint: "İyelik zamiri (Biz)" },
+                { q: "Ich sehe [onları] im Park.", ans: "sie", alts: ["ihnen", "ihr"], hint: "Akkusativ (Onlar)" }
+            ];
+            // 10'dan sonra gelen sorular
+            for (let i = 0; i < 10; i++) {
+                let item = extraQuestions[rdm(0, extraQuestions.length - 1)];
+                qList.push({
+                    val: item.q,
+                    parts: [item.ans],
+                    distractors: item.alts,
+                    hint: item.hint
+                });
+            }
+            return qList;
+        } else {
+            // Diğer kategorilerde de 10 benzersiz soru
+            let generator, dataLength = null;
             if (cat === 'numbers') {
-                qData = decomposeNumber(rdm(0, 1000));
-            } 
-            else if (cat === 'years') {
-                let year = (Math.random() > 0.5) ? rdm(1950, 1999) : rdm(2000, 2030);
-                qData = decomposeYear(year);
+                generator = () => decomposeNumber(rdm(0, 1000));
+            } else if (cat === 'years') {
+                generator = () => decomposeYear((Math.random() > 0.5) ? rdm(1950, 1999) : rdm(2000, 2030));
+            } else if (cat === 'days') {
+                generator = getDayMonthQuestion;
+                dataLength = DAYS.length + MONTHS.length;
+            } else if (cat === 'vocab') {
+                generator = () => getVocabQuestion();
+                dataLength = A1_VOCAB.length;
+            } else if (cat === 'greetings') {
+                generator = () => getGreetingQuestion();
+                dataLength = GREETINGS_DATA.length;
+            } else if (cat === 'dialogue') {
+                generator = () => getDialogueQuestion();
+                dataLength = DIALOGUE_DATA.length;
+            } else if (cat === 'grammar') {
+                generator = () => getGrammarQuestion();
+                dataLength = GRAMMAR_DATA.length;
             }
-            else if (cat === 'days') {
-                qData = getDayMonthQuestion();
+
+            // Eğer sabit veri varsa, benzersiz index seçerek soruları oluştur
+            if (dataLength) {
+                let indexes = Array.from({length: dataLength}, (_, i) => i);
+                // Karıştır
+                for (let i = indexes.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+                }
+                for (let i = 0; i < 10 && i < indexes.length; i++) {
+                    let qData;
+                    if (cat === 'days') {
+                        // Günler ve aylar için
+                        let isDay = i < DAYS.length;
+                        let list = isDay ? DAYS : MONTHS;
+                        let idx = isDay ? indexes[i] : indexes[i] - DAYS.length;
+                        let item = list[idx];
+                        let wrong1 = list[(idx+1)%list.length].de;
+                        let wrong2 = list[(idx+2)%list.length].de;
+                        qData = { val: item.tr, parts: [item.de], distractors: [wrong1, wrong2], hint: "Almancasını bul" };
+                    } else if (cat === 'vocab') {
+                        let item = A1_VOCAB[indexes[i]];
+                        let parts = [], distractors = [], hint = "";
+                        if(item.type === "noun") {
+                            let split = item.de.split(" ");
+                            parts = split;
+                            distractors = ["der", "die", "das"].filter(a => a !== split[0]);
+                            let randomWord = A1_VOCAB[rdm(0, A1_VOCAB.length-1)].de.split(" ").pop();
+                            distractors.push(randomWord);
+                            hint = "Artikeliyle eşleştir.";
+                        } else {
+                            parts = [item.de];
+                            distractors.push(A1_VOCAB[rdm(0, A1_VOCAB.length-1)].de.split(" ").pop());
+                            distractors.push(A1_VOCAB[rdm(0, A1_VOCAB.length-1)].de.split(" ").pop());
+                            hint = "Almanca karşılığı.";
+                        }
+                        distractors = cleanDistractors(parts, distractors);
+                        qData = { val: item.tr, parts: parts, distractors: distractors, hint: hint };
+                    } else if (cat === 'greetings') {
+                        let item = GREETINGS_DATA[indexes[i]];
+                        let parts = item.de.split(" ");
+                        let distractors = ["Tag", "Abend", "Nacht", "Auf", "Wiedersehen", "Hallo", "Moin"];
+                        distractors = cleanDistractors(parts, distractors);
+                        qData = { val: item.tr, parts: parts, distractors: distractors, hint: item.hint };
+                    } else if (cat === 'dialogue') {
+                        let item = DIALOGUE_DATA[indexes[i]];
+                        let parts = item.de.split(" ").filter(p => p.length > 0);
+                        let commonWords = ["du", "Sie", "ich", "er", "ist", "bist", "wohne", "komme", "aus", "in"];
+                        let distractors = cleanDistractors(parts, commonWords);
+                        qData = { val: item.tr, parts: parts, distractors: distractors, hint: item.hint };
+                    } else if (cat === 'grammar') {
+                        let item = GRAMMAR_DATA[indexes[i]];
+                        qData = { val: item.q, parts: [item.ans], distractors: item.alts, hint: item.hint };
+                    }
+                    qList.push(qData);
+                }
+            } else {
+                // Rastgele üretilebilen kategoriler (sayılar, yıllar)
+                let used = new Set();
+                while (qList.length < 10) {
+                    let qData = generator();
+                    let key = JSON.stringify(qData.parts);
+                    if (!used.has(key)) {
+                        qList.push(qData);
+                        used.add(key);
+                    }
+                }
             }
-            else if (cat === 'vocab') {
-                qData = getVocabQuestion();
-            }
-            // --- YENİ MODÜL MANTIKLARI ---
-            else if (cat === 'greetings') {
-                qData = getGreetingQuestion();
-            }
-            else if (cat === 'dialogue') {
-                qData = getDialogueQuestion();
-            }
-            else if (cat === 'grammar') {
-                qData = getGrammarQuestion();
-            }
-            qList.push(qData);
+            return qList;
         }
-        return qList;
+    }
+    // Zamirler & Haller Modülü için soru üretici
+    function getPronounCaseQuestion() {
+        let item = PRONOUN_CASES_DATA[rdm(0, PRONOUN_CASES_DATA.length - 1)];
+        return {
+            val: item.q,
+            parts: [item.ans],
+            distractors: item.alts,
+            hint: item.hint
+        };
     }
 
     // --- YENİ MODÜL FONKSİYONLARI ---
@@ -306,6 +507,33 @@
             pool.appendChild(el);
         });
         updatePreview();
+            // Kontrol Et butonunu varsayılan hale getir
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.innerText = "Kontrol Et";
+            actionBtn.onclick = checkAnswer;
+    // Kontrol Et butonu fonksiyonu
+    function checkAnswer() {
+        const chips = document.querySelectorAll('#drop-zone .word-chip');
+        let userAnswer = Array.from(chips).map(chip => chip.innerText).join(' ');
+        let correctAnswer = currentData.parts.join(' ');
+        const actionBtn = document.getElementById('action-btn');
+        if (userAnswer.trim() === correctAnswer.trim()) {
+            document.getElementById('feedback-msg').innerText = "Doğru!";
+            document.getElementById('feedback-msg').style.color = "var(--success)";
+            document.getElementById('listen-btn').style.display = 'inline-block';
+            actionBtn.innerText = "Sonraki >>";
+            actionBtn.onclick = function() {
+                currentQ++;
+                loadQuestion();
+            };
+            playCurrentAnswer();
+        } else {
+            document.getElementById('drop-zone').className = "construction-zone wrong";
+            setTimeout(() => document.getElementById('drop-zone').className = "construction-zone", 500);
+            document.getElementById('feedback-msg').innerText = "Yanlış, tekrar dene.";
+            document.getElementById('feedback-msg').style.color = "var(--error)";
+        }
+    }
     }
 
     function handleClickTransfer(el) {
@@ -325,51 +553,12 @@
 
     function updatePreview() {
         const chips = document.querySelectorAll('#drop-zone .word-chip');
-        let text = "";
-        let separator = (currentCategory === 'numbers' || currentCategory === 'years') ? "" : " "; 
-        // Gramer modunda sadece boşluğa gelen kelimeyi gösteriyoruz, ama önizleme metni genel kalabilir.
-        chips.forEach(c => text += c.dataset.val + separator);
-        document.getElementById('preview-text').innerText = text.trim();
-    }
-
-    function checkAnswer() {
-        const chips = document.querySelectorAll('#drop-zone .word-chip');
-        let rawParts = [];
-        chips.forEach(c => rawParts.push(c.dataset.val));
+        let currentText = Array.from(chips).map(chip => chip.innerText).join(' ');
+        document.getElementById('preview-text').innerText = currentText;
         
-        let correctParts = currentData.parts;
-        // Basit string karşılaştırması
-        let isCorrect = (rawParts.join('') === correctParts.join(''));
-
-        if (isCorrect) {
-            document.getElementById('drop-zone').className = "construction-zone correct";
-            document.getElementById('feedback-msg').innerText = "Harika! 🎉";
-            document.getElementById('feedback-msg').style.color = "var(--success)";
-            
-            // Eğer gramer sorusuysa, tam cümleyi okutmak daha eğitici olur
-            let textToRead = rawParts.join(' ');
-            if (currentCategory === 'grammar') {
-                // Gramer sorularında val: "Ich ___ müde" -> Okunacak: "Ich bin müde"
-                textToRead = currentData.val.replace('___', rawParts[0]);
-            }
-
-            readOutLoud(textToRead);
-            lastCorrectText = textToRead; // Dinle butonu için güncelle
-
+        // Sadece belirli modüllerde, henüz cevaplama aşamasında dinleme butonu gösterme
+        if (currentCategory === 'pronouns' || currentCategory === 'adj_formula' || currentCategory === 'grammar') {
             document.getElementById('listen-btn').style.display = 'inline-block';
-
-            document.getElementById('action-btn').innerText = "Sonraki >>";
-            document.getElementById('action-btn').onclick = () => { 
-                currentQ++; 
-                document.getElementById('action-btn').innerText = "Kontrol Et";
-                document.getElementById('action-btn').onclick = checkAnswer;
-                loadQuestion(); 
-            };
-        } else {
-            document.getElementById('drop-zone').className = "construction-zone wrong";
-            setTimeout(() => document.getElementById('drop-zone').className = "construction-zone", 500);
-            document.getElementById('feedback-msg').innerText = "Yanlış, tekrar dene.";
-            document.getElementById('feedback-msg').style.color = "var(--error)";
         }
     }
 
@@ -425,7 +614,25 @@
     }
     
     function playCurrentAnswer() {
-        if(lastCorrectText) readOutLoud(lastCorrectText);
+        let textToRead = lastCorrectText; // Varsayılan olarak kelime/kelimeleri oku
+
+        // Boşluk doldurma modüllerinde, tam cümleyi oluştur ve oku
+        if (currentCategory === 'pronouns' || currentCategory === 'adj_formula' || currentCategory === 'grammar') {
+            let q = currentData.val;
+            // Soru metnindeki ipucunu (parantez içini) temizle
+            let cleanQuestion = q.replace(/\s*\(.*?\)\s*/, '');
+
+            if (q && q.includes('__')) {
+                textToRead = cleanQuestion.replace(/__/, currentData.parts.join(' '));
+            } else if (q && q.includes('[')) {
+                textToRead = cleanQuestion.replace(/\[.*?\]/, currentData.parts.join(' '));
+            }
+        }
+        
+        if (textToRead) {
+            // Cümlenin sonundaki noktayı kaldırarak okumayı daha doğal hale getir
+            readOutLoud(textToRead.replace(/\.$/, ''));
+        }
     }
 
     function setSpeed(v) { currentSpeed = parseFloat(v); }
